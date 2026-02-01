@@ -1,0 +1,78 @@
+$(function(){
+  (function() {
+    let shareUtil = document.getElementById('shareUtil'); 
+	if (shareUtil) {
+    console.log(shareUtil,'shareUtil');
+    let shareBtn = shareUtil.getElementsByTagName('a');
+    let title = encodeURIComponent(document.title);
+    // var url = encodeURIComponent('http://www.81.cn/syjdt/16202451.html');  //测试分享地址
+    let url = encodeURIComponent(window.location.href);
+    let list = {
+      '_weixin': url, //改成二维码页面最终地址
+      '_weibo': 'http://service.weibo.com/share/share.php?url=' + url + "&title=" + title,
+      '_qzone': 'https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=' + url + "&title=" + title,
+    }
+    let _weixinstr = '<div class="weixin_code_box" style="top:50%;transform: translate(-50%,-50%)">'+
+                '<h5>分享到微信</h5>'+
+                '<span>x</span>'+
+                '<div id="weixinCodeBox">'+
+                '</div>'+
+                '<p>'+
+                  '用微信“扫一扫”，点击右上角分享按钮，<br>即可将网页分享给您的微信好友或朋友圈。'+
+                '</p>'+
+              '</div>';
+    let UnityFunction = {
+      init: function(){
+        this.bindShare();
+      },
+
+      bindShare:function(){
+        $('body').append(_weixinstr);
+        for(let i=0;i<shareBtn.length;i++){
+          let _id = shareBtn[i].getAttribute('id');
+          if(_id!='_weixin'){
+            shareBtn[i].href = list[_id];
+          }else{
+            shareBtn[i].href='javascript:;';
+            $('#'+_id).attr('data-url', list[_id]);
+          }
+         
+        }
+      }
+  
+    }
+    UnityFunction.init()
+	}
+  })();
+
+  //设置微信二维码
+  $('#weixinCodeBox').qrcode({
+      render: "canvas", //也可以替换为table
+      width: 200,
+      height: 200,
+      text: window.location.href
+  });
+
+  //打开微信二维码
+  $('#_weixin').on('click',function(){
+      $('.weixin_code_box').show();
+      return false;
+  });
+
+  // 关闭微信二维码
+  $('.weixin_code_box span').on('click',function(){
+    $('.weixin_code_box').hide();
+    return false;
+  });
+
+  $(window).resize(function(){
+    console.log($(document).height(), $(window).height(),$('.weixin_code_box').height());
+      if($(window).height()<$('.weixin_code_box').height()){
+          $('.weixin_code_box').removeClass('top50');
+          $('.weixin_code_box').addClass('top0');
+      }else{
+          $('.weixin_code_box').removeAttr('top0');
+          $('.weixin_code_box').addClass('top50');
+      }
+  })
+});
